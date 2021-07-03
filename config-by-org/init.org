@@ -1,0 +1,12 @@
+#+TITLE: emacsの設定
+#+STARTUP: overview
+
+* 基本
+** emacs の挙動設定
+
+#+begin_src emacs-lisp
+  (setq debug-on-error t)
+#+end_src
+
+** 言語
+** 画面
