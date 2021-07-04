@@ -61,3 +61,16 @@
 #+end_src
 
 ** 画面
+
+* キー
+
+** 全体
+
+*** 大文字小文字変換
+
+リージョン選択時の大文字小文字変換を有効にする。
+
+#+begin_src emacs-lisp
+  (put 'upcase-region 'disabled nil) ;; C-x C-u
+  (put 'downcase-region 'disabled nil) ;; C-x C-l
+#+end_src
