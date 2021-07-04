@@ -7,6 +7,21 @@
 # 1個移動したら起動確認からのコミット
 # 旧版を移行しながらやりたいこと、終わってから変えたいことはそれぞれ以下のセクションに書いておく
 
+* 旧版移行ログ
+
+~/.emacs/config/*.el に対応している。
+
+- [X] global
+- [ ] face
+- [ ] keybinds
+- [ ] commands
+- [ ] builtin-packages
+- [ ] package-managers
+- [ ] modes
+- [ ] other-packages
+- [ ] cocoa-emacs-miscs
+- [ ] linux-miscs（会社じゃないと駄目かも）
+
 * 旧版を移行しながらやりたいこと
 
 - [ ] leaf の導入 https://www.grugrut.net/posts/my-emacs-init-el/ のパッケージ導入
