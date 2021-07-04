@@ -1,6 +1,23 @@
 #+TITLE: emacsの設定
 #+STARTUP: overview
 
+# MEMO: コードブロックの挿入は C-c C-, src RET してから emacs-lisp を追加
+
+# .emacs.d/init.el を見て上から順番にいるものを書いていく、セクションは逐一追加
+# 1個移動したら起動確認からのコミット
+# 旧版を移行しながらやりたいこと、終わってから変えたいことはそれぞれ以下のセクションに書いておく
+
+* 旧版を移行しながらやりたいこと
+
+- [ ] leaf の導入 https://www.grugrut.net/posts/my-emacs-init-el/ のパッケージ導入
+- [ ] helm 以外のUI https://blog.tomoya.dev/posts/a-new-wave-has-arrived-at-emacs/
+
+* 旧版を移行し終わったらやりたいこと
+
+- [ ] https://emacs-jp.github.io/tips/emacs-in-2020 を参考にして使いそうなのを入れる
+- [ ] skk の辞書
+- [ ] skk でENTERで変換確定するようにする
+
 * 基本
 ** emacs の挙動設定
 
