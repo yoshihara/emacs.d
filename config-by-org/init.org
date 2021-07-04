@@ -25,6 +25,14 @@
   (setq debug-on-error t)
 #+end_src
 
+** バックアップ
+
+#+begin_src emacs-lisp
+  (setq make-backup-files t)
+  (setq backup-inhibited t)
+  (setq delete-auto-save-files t)
+#+end_src
+
 ** 言語
 
 *** emacs の言語環境と文字コード
