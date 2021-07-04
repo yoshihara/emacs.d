@@ -9,4 +9,13 @@
 #+end_src
 
 ** 言語
+
+*** emacs の言語環境と文字コード
+
+#+begin_src emacs-lisp
+  (set-locale-environment nil)
+  (set-language-environment 'Japanese)
+  (prefer-coding-system 'utf-8)
+#+end_src
+
 ** 画面
