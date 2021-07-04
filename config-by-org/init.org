@@ -26,6 +26,14 @@
   (setq debug-on-error t)
 #+end_src
 
+** 音
+
+エラー音を鳴らさないようにする。
+
+#+begin_src emacs-lisp
+  (setq ring-bell-function 'ignore)
+#+end_src
+
 ** ファイル
 
 *** ファイルの種類による挙動変化
