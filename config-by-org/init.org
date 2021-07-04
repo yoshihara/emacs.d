@@ -28,7 +28,7 @@
 
 ** ファイル
 
-** ファイルの種類による挙動変化
+*** ファイルの種類による挙動変化
 
 #+begin_src emacs-lisp
   (auto-compression-mode t)
@@ -36,7 +36,7 @@
             'executable-make-buffer-file-executable-if-script-p)
 #+end_src
 
-** バックアップ
+*** バックアップ
 
 #+begin_src emacs-lisp
   (setq make-backup-files t)
