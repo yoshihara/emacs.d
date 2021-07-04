@@ -18,8 +18,9 @@
 - [ ] skk の辞書
 - [ ] skk でENTERで変換確定するようにする
 
-* 基本
-** emacs の挙動設定
+* emacs の挙動設定
+
+** debug
 
 #+begin_src emacs-lisp
   (setq debug-on-error t)
@@ -33,9 +34,7 @@
   (setq delete-auto-save-files t)
 #+end_src
 
-** 言語
-
-*** emacs の言語環境と文字コード
+** 言語環境と文字コード
 
 #+begin_src emacs-lisp
   (set-locale-environment nil)
