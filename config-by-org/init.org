@@ -74,6 +74,19 @@
 
 ** 全体
 
+*** タブ入力
+
+すべてのインデントをスペースで入力する。
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode nil)
+#+end_src
+
+C-j でインデントつき改行し、RETは改行のみにする。
+
+#+begin_src emacs-lisp
+  (electric-indent-mode -1)
+#+end_src
+
 *** 大文字小文字変換
 
 リージョン選択時の大文字小文字変換を有効にする。
