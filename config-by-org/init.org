@@ -1,7 +1,8 @@
 #+TITLE: emacsの設定
 #+STARTUP: overview
 
-# MEMO: コードブロックの挿入は C-c C-, src RET してから emacs-lisp を追加
+# MEMO: コードブロックの挿入は C-c C-, s してから emacs-lisp を追加
+# MEMO: コードブロックを別バッファで編集するときは C-c ' （終了もこれ）
 
 # .emacs.d/init.el を見て上から順番にいるものを書いていく、セクションは逐一追加
 # 1個移動したら起動確認からのコミット
