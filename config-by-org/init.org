@@ -33,6 +33,7 @@
 - [ ] https://emacs-jp.github.io/tips/emacs-in-2020 を参考にして使いそうなのを入れる
 - [ ] skk の辞書
 - [ ] skk でENTERで変換確定するようにする
+- [ ] ↓セクションの整理（今は仮）
 
 * emacs の挙動設定
 
@@ -84,9 +85,9 @@
   (setq recentf-max-saved-items 10000)
 #+end_src
 
-** フレーム・バッファ
+** 表示
 
-*** 色設定
+*** 文字色と背景色
 
 #+begin_src emacs-lisp
   (setq default-frame-alist
@@ -95,12 +96,8 @@
             (foreground-color . "khaki")
             )
           default-frame-alist))
-#+end_src
-
-*** 初期フレームもデフォルトに合わせる（自信なし）
-
-#+begin_src emacs-lisp
   (setq initial-frame-alist default-frame-alist)
+
 #+end_src
 
 * キー入力
