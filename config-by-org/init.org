@@ -55,8 +55,15 @@
 
 *** ファイルの種類による挙動変化
 
+圧縮ファイルは解凍したものを開くようにする。
+
 #+begin_src emacs-lisp
   (auto-compression-mode t)
+#+end_src
+
+ファイル先頭にshebangが付いているファイルは自動で実行権限を付ける。
+
+#+begin_src emacs-lisp
   (add-hook 'after-save-hook
             'executable-make-buffer-file-executable-if-script-p)
 #+end_src
