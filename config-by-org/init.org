@@ -85,6 +85,16 @@
   (setq recentf-max-saved-items 10000)
 #+end_src
 
+** クリップボード
+
+*** kill/yankでクリップボードにアクセスする
+
+#+begin_src emacs-lisp
+  (cond (window-system
+         (setq x-select-enable-clipboard t)
+  ))
+#+end_src
+
 ** 表示
 
 *** 文字色と背景色
