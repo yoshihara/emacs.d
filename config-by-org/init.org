@@ -147,6 +147,13 @@
   (save-place-mode 1)
 #+end_src
 
+括弧にカーソルがある時に中身を光らせる。
+
+#+begin_src emacs-lisp
+  (show-paren-mode 1)
+  (setq show-paren-style 'expression)
+#+end_src
+
 *** 文字色と背景色
 
 #+begin_src emacs-lisp
