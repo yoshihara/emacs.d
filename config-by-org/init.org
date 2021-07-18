@@ -85,6 +85,17 @@
 
 ** 画面
 
+*** 色設定
+
+#+begin_src emacs-lisp
+  (setq default-frame-alist
+         (append
+          '((background-color . "#274444")
+            (foreground-color . "khaki")
+            )
+          default-frame-alist))
+#+end_src
+
 * キー入力
 
 ** 全体
