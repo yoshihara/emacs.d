@@ -61,6 +61,12 @@
             'executable-make-buffer-file-executable-if-script-p)
 #+end_src
 
+画像ファイルを直接開く。
+
+#+begin_src emacs-lisp
+  (auto-image-file-mode t)
+#+end_src
+
 *** バックアップ
 
 #+begin_src emacs-lisp
