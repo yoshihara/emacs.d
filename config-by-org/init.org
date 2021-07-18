@@ -110,6 +110,15 @@
 
 ** 表示
 
+*** バー
+
+メニューバーもツールバーも消す。
+
+#+begin_src emacs-lisp
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+#+end_src
+
 *** 文字色と背景色
 
 #+begin_src emacs-lisp
