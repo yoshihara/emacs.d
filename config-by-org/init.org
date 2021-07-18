@@ -119,6 +119,34 @@
   (tool-bar-mode -1)
 #+end_src
 
+*** カーソル
+
+カーソルの点滅を止める。
+
+#+begin_src emacs-lisp
+  (blink-cursor-mode 0)
+#+end_src
+
+現在行を目立たせる。
+
+#+begin_src emacs-lisp
+  (global-hl-line-mode)
+#+end_src
+
+カーソルの位置が何文字目・何行目かを表示する。
+
+#+begin_src emacs-lisp
+  (column-number-mode t)
+  (line-number-mode t)
+#+end_src
+
+前回そのファイルを閉じた時のカーソル位置を復元する。
+
+#+begin_src emacs-lisp
+  (require 'saveplace)
+  (save-place-mode 1)
+#+end_src
+
 *** 文字色と背景色
 
 #+begin_src emacs-lisp
