@@ -13,7 +13,7 @@
 ~/.emacs/config/*.el に対応している。
 
 - [X] global
-- [ ] face
+- [X] face
 - [ ] keybinds
 - [ ] commands
 - [ ] builtin-packages
