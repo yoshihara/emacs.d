@@ -84,7 +84,7 @@
   (setq recentf-max-saved-items 10000)
 #+end_src
 
-** 画面
+** フレーム・バッファ
 
 *** 色設定
 
@@ -95,6 +95,12 @@
             (foreground-color . "khaki")
             )
           default-frame-alist))
+#+end_src
+
+*** 初期フレームもデフォルトに合わせる（自信なし）
+
+#+begin_src emacs-lisp
+  (setq initial-frame-alist default-frame-alist)
 #+end_src
 
 * キー入力
