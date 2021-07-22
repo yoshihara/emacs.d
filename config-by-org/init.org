@@ -14,7 +14,7 @@
 
 - [X] global
 - [X] face
-- [ ] keybinds
+- [X] keybinds
 - [ ] commands
 - [ ] builtin-packages
 - [ ] package-managers
@@ -194,25 +194,50 @@
   (setq diff-switches '("-u" "-p" "-N"))
 #+end_src
 
-* キー入力
+* emacs 全体にかかるキー入力
 
-** 全体
-
-*** タブ入力
-
-すべてのインデントをスペースで入力する。
+** キーバインド追加
 
 #+begin_src emacs-lisp
-  (setq-default indent-tabs-mode nil)
+  (define-key global-map (kbd "M-?") 'help-for-help)     ; ヘルプ
+  (define-key global-map (kbd "C-z") 'undo)              ; undo
+  (define-key global-map (kbd "C-c C-i") 'hippie-expand) ; 補完
+  (define-key global-map (kbd "C-c ;") 'comment-dwim)    ; コメントアウト
+  (define-key global-map (kbd "M-C-g") 'grep)            ; grep
+  (define-key global-map (kbd "C-[ M-C-g") 'goto-line)   ; 指定行へ移動
+  ;; ウィンドウ移動
+  ;; 次のウィンドウへ移動
+  (define-key global-map (kbd "C-M-n") 'next-multiframe-window)
+  ;; 前のウィンドウへ移動
+  (define-key global-map (kbd "C-M-p") 'previous-multiframe-window)
 #+end_src
 
-C-j でインデントつき改行し、RETは改行のみにする。
+関数定義への移動用キーバインドを設定する。
+
+- C-x F -> 関数定義へ移動
+- C-x K -> キーにバインドされている関数定義へ移動
+- C-x V -> 変数定義へ移動
 
 #+begin_src emacs-lisp
-  (electric-indent-mode -1)
+  (find-function-setup-keys)
 #+end_src
 
-*** 大文字小文字変換
+** 既存設定の変更
+
+バックスペースを C-h に変更する。
+
+#+begin_src emacs-lisp
+  (keyboard-translate ?\C-h ?\C-?)
+#+end_src
+
+使わない割に誤爆する設定を無効化する。
+
+#+begin_src emacs-lisp
+  ;; suspend-frame だが使わない
+  (define-key global-map (kbd "C-x C-z") nil)
+#+end_src
+
+** 文字関連のモードの設定
 
 リージョン選択時の大文字小文字変換を有効にする。
 
@@ -221,35 +246,14 @@ C-j でインデントつき改行し、RETは改行のみにする。
   (put 'downcase-region 'disabled nil) ;; C-x C-l
 #+end_src
 
-*** キーバインド設定
+C-j でインデントつき改行し、RETは改行のみにする。
 
 #+begin_src emacs-lisp
-  (keyboard-translate ?\C-h ?\C-?)                       ; バックスペース
-  (define-key global-map (kbd "M-?") 'help-for-help)     ; ヘルプ
-  (define-key global-map (kbd "C-z") 'undo)              ; undo
-  (define-key global-map (kbd "C-c C-i") 'hippie-expand) ; 補完
-  (define-key global-map (kbd "C-c ;") 'comment-dwim)    ; コメントアウト
-  (define-key global-map (kbd "M-C-g") 'grep)            ; grep
-  (define-key global-map (kbd "C-[ M-C-g") 'goto-line)   ; 指定行へ移動
-  (define-key global-map (kbd "C-x C-z") nil)            ; suspend-frameだが使わない割に誤爆するのでnilにしている
+  (electric-indent-mode -1)
+#+end_src
 
-  ;; ウィンドウ移動
-  ;; 次のウィンドウへ移動
-  (define-key global-map (kbd "C-M-n") 'next-multiframe-window)
-  ;; 前のウィンドウへ移動
-  (define-key global-map (kbd "C-M-p") 'previous-multiframe-window)
+すべてのインデントをスペースで入力する。
 
-  ;; 定義へ移動
-  ;; C-x F -> 関数定義へ移動
-  ;; C-x K -> キーにバインドされている関数定義へ移動
-  ;; C-x V -> 変数定義へ移動
-  (find-function-setup-keys)
-
-  ;;; 行
-  ;; 行の先頭でC-kを一回押すだけで行全体を消去する
-  (setq kill-whole-line t)
-  ;; 最終行に必ず一行挿入する
-  (setq require-final-newline t)
-  ;; バッファの最後でnewlineで新規行を追加するのを禁止する
-  (setq next-line-add-newlines nil)
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode nil)
 #+end_src
