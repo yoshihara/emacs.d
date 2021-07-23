@@ -297,7 +297,41 @@ C-j でインデントつき改行し、RETは改行のみにする。
 
 * 独自コマンド実装
 
+** バージョン管理システム
+
+dired からバージョン管理システムの *-status を起動するコマンド。
+wdired と magit に依存。（本来は svn-status にも依存しているがほとんど使わないので入れてない）
+
+#+begin_src emacs-lisp
+  (defun find-path-in-parents (directory base-names)
+    (or (cl-find-if 'file-exists-p
+                 (mapcar (lambda (base-name)
+                           (concat directory base-name))
+                         base-names))
+        (if (string= directory "/")
+            nil
+          (let ((parent-directory (substring directory 0 -1)))
+            (find-path-in-parents parent-directory base-names)))))
+
+  (setq this-file-path (file-name-directory (or load-file-name (buffer-file-name))))
+
+  (defun dired-vc-status (&rest args)
+    (interactive)
+    (let ((path (find-path-in-parents (dired-current-directory)
+                                      '(".svn" ".git"))))
+      (cond ((null path)
+             (message "not version controlled."))
+            ((string-match-p "\\.svn$" path)
+             (svn-status (file-name-directory path)))
+            ((string-match-p "\\.git$" path)
+             (magit-status (file-name-directory path))))))
+
+  (define-key dired-mode-map "V" 'dired-vc-status)
+#+end_src
+
 ** git grep
+
+emacs の grep の方式で git grep を実行して結果からジャンプできるコマンド。
 
 #+begin_src emacs-lisp
   (defun self-git-grep--chomp (str)
@@ -340,6 +374,8 @@ C-j でインデントつき改行し、RETは改行のみにする。
 #+end_src
 
 ** 行の折り返し制御
+
+実行したバッファの行の折り返しを制御する。
 
 #+begin_src emacs-lisp
   (defun toggle-truncate-lines ()
