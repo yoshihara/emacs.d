@@ -15,7 +15,7 @@
 - [X] global
 - [X] face
 - [X] keybinds
-- [ ] commands
+- [X] commands
 - [ ] builtin-packages
 - [ ] package-managers
 - [ ] modes
@@ -302,4 +302,17 @@ C-j でインデントつき改行し、RETは改行のみにする。
                    command-args)))
       (grep command))
       (setq grep-use-null-device t))
+#+end_src
+
+** 行の折り返し制御
+
+#+begin_src emacs-lisp
+  (defun toggle-truncate-lines ()
+    (interactive)
+    (if truncate-lines
+        (setq truncate-lines nil)
+      (setq truncate-lines t))
+    (recenter))
+
+  (global-set-key "\C-c\C-l" 'toggle-truncate-lines)
 #+end_src
