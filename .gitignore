@@ -1,4 +1,9 @@
-./config-by-org/init.el
+init.el
+init.elc
 history
+auto-save-list
 places
 custom.el
+elpa/
+kkcrc
+transient/

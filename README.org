@@ -1,0 +1,761 @@
+#+TITLE: emacsの設定
+#+STARTUP: overview
+
+# MEMO: コードブロックの挿入は C-c C-, s してから emacs-lisp を追加
+# MEMO: コードブロックを別バッファで編集するときは C-c ' （終了もこれ）
+
+* setup
+
+#+begin_src sh
+  git clone https://github.com/yoshihara/emacs.d.git ~/.emacs.d
+  cd ~/.emacs.d
+  make
+#+end_src
+
+* init.el
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle init.el
+:END:
+
+#+begin_src emacs-lisp
+;;; init.el -*- lexical-binding: t -*-
+#+end_src
+
+** emacs 自体の挙動設定
+
+*** for debug
+
+emacs -q -l /path/to/init.el で起動できるようにする。
+cf. https://emacs-jp.github.io/tips/emacs-in-2020
+
+#+begin_src emacs-lisp
+  (eval-and-compile
+    (when (or load-file-name byte-compile-current-file)
+      (setq user-emacs-directory
+            (expand-file-name
+             (file-name-directory (or load-file-name byte-compile-current-file))))))
+#+end_src
+
+デバッグ用の設定をオンにしておく。
+
+#+begin_src emacs-lisp
+  ; どんなエラーもデバッガを呼び出す。普段は邪魔なので外しておく
+  ; (setq debug-on-error t)
+  (setq init-file-debug t)
+#+end_src
+
+*** leaf
+
+各所で使うので先に入れておく。
+
+#+begin_src emacs-lisp
+(eval-and-compile
+  (customize-set-variable
+   'package-archives '(("gnu"   . "https://elpa.gnu.org/packages/")
+                       ("melpa" . "https://melpa.org/packages/")
+                       ("org"   . "https://orgmode.org/elpa/")))
+  (package-initialize)
+  (unless (package-installed-p 'leaf)
+    (package-refresh-contents)
+    (package-install 'leaf))
+
+  (leaf leaf-keywords
+    :ensure t
+    :init
+    ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
+    (leaf hydra :ensure t)
+    (leaf el-get :ensure t)
+    (leaf blackout :ensure t)
+
+    :config
+    ;; initialize leaf-keywords.el
+    (leaf-keywords-init)))
+
+  (leaf cus-edit
+    :doc "tools for customizing Emacs and Lisp packages"
+    :tag "builtin" "faces" "help"
+    :custom `((custom-file . ,(locate-user-emacs-file "custom.el"))))
+#+end_src
+
+
+*** 言語環境と文字コード
+
+#+begin_src emacs-lisp
+  (set-locale-environment nil)
+  (set-language-environment 'Japanese)
+  (prefer-coding-system 'utf-8)
+#+end_src
+
+通常の半角のクォートで常にテキストを表示する（全角クォートを使わない）
+
+#+begin_src emacs-lisp
+  (setq text-quoting-style 'straight)
+#+end_src
+
+*** 音
+#+begin_src emacs-lisp
+  (setq ring-bell-function 'ignore)
+#+end_src
+
+*** 画面表示・スクロール
+
+#+begin_src emacs-lisp
+  (setq frame-resize-pixelwise t)
+  (setq scroll-preserve-screen-position t)
+  (setq scroll-conservatively 100)
+  (setq mouse-wheel-scroll-amount '(1 ((control) . 5)))
+  (setq use-dialog-box nil)
+  (setq use-file-dialog nil)
+  (setq truncate-lines t)
+#+end_src
+
+メニューバーを無効にする。GUI ではツールバーもあるのでそちらも無効にする。
+
+#+begin_src emacs-lisp
+  (menu-bar-mode -1)
+  (if window-system
+      (tool-bar-mode -1))
+#+end_src
+
+*** カーソル
+
+カーソルの点滅を止める。
+
+#+begin_src emacs-lisp
+  (blink-cursor-mode 0)
+#+end_src
+
+現在行を目立たせる。
+
+#+begin_src emacs-lisp
+  (global-hl-line-mode)
+#+end_src
+
+カーソルの位置が何文字目・何行目かを表示する。
+
+#+begin_src emacs-lisp
+  (column-number-mode t)
+  (line-number-mode t)
+#+end_src
+
+前回そのファイルを閉じた時のカーソル位置を復元する。
+
+#+begin_src emacs-lisp
+  (save-place-mode 1)
+#+end_src
+
+括弧にカーソルがある時に中身を光らせる。
+
+#+begin_src emacs-lisp
+  (show-paren-mode 1)
+  (defvar show-paren-style 'expression)
+#+end_src
+
+*** フォント設定
+
+#+begin_src emacs-lisp
+  (let* ((size 18)
+         (asciifont "Ricty")
+         (jpfont "Ricty")
+         (h (* size 10))
+         (fontspec (font-spec :family asciifont))
+         (jp-fontspec (font-spec :family jpfont)))
+    (set-face-attribute 'default nil :family asciifont :height h)
+    (cond (window-system ;; GUI
+           (setq default-frame-alist
+                 (append
+                  '((background-color . "#274444")
+                    (foreground-color . "khaki"))
+                  default-frame-alist))
+           (set-fontset-font nil 'japanese-jisx0213.2004-1 jp-fontspec)
+           (set-fontset-font nil 'japanese-jisx0213-2 jp-fontspec)
+           (set-fontset-font nil 'katakana-jisx0201 jp-fontspec)
+           (set-fontset-font nil '(#x0080 . #x024F) fontspec)
+           (set-fontset-font nil '(#x0370 . #x03FF) fontspec))
+          ((setq default-frame-alist
+                 ;; CUI は背景色を指定するとターミナルの背景色と喧嘩するので指定しない
+                 ;; 一方文字色はそのままだと見にくいので指定し、フォントはターミナルのをそのまま使う
+                 (append
+                  '((foreground-color . "khaki"))
+                  default-frame-alist))))
+          (setq initial-frame-alist default-frame-alist))
+#+end_src
+
+*** ファイル
+
+同時編集を許可する（しないので）
+
+#+begin_src emacs-lisp
+  (setq create-lockfiles nil)
+#+end_src
+
+圧縮ファイルは解凍したものをバッファで開くようにする。
+
+#+begin_src emacs-lisp
+  (auto-compression-mode t)
+#+end_src
+
+画像ファイルを直接開く。
+
+#+begin_src emacs-lisp
+  (auto-image-file-mode t)
+#+end_src
+
+ファイルの中身先頭にshebangが付いているファイルには、自動で実行権限を付ける。
+
+#+begin_src emacs-lisp
+  (add-hook 'after-save-hook
+            'executable-make-buffer-file-executable-if-script-p)
+#+end_src
+
+*** バックアップ
+
+#+begin_src emacs-lisp
+  (setq make-backup-files t)
+  (setq backup-inhibited t)
+  (setq delete-auto-save-files t)
+#+end_src
+
+*** 履歴
+
+#+begin_src emacs-lisp
+  (setq history-length 10000)
+  (savehist-mode 1)
+  (defvar recentf-max-saved-items 10000)
+  (setq history-delete-duplicates t)
+#+end_src
+
+*** クリップボード
+
+kill/yankでクリップボードにアクセスする。（GUI のみ）
+
+#+begin_src emacs-lisp
+  (cond (window-system
+         (setq select-enable-clipboard t)))
+#+end_src
+
+*** ミニバッファ
+
+ミニバッファを再帰的利用する。
+
+#+begin_src emacs-lisp
+  (setq enable-recursive-minibuffers t)
+#+end_src
+
+ミニバッファで yes/no で答えるところを y/n で答えられるようにする。
+
+#+begin_src emacs-lisp
+  (defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+*** インデント
+
+タブでインデントしない。
+
+#+begin_src emacs-lisp
+  (setq indent-tabs-mode nil)
+#+end_src
+
+C-j でインデントつき改行し、RETは改行のみにする。
+
+#+begin_src emacs-lisp
+  (electric-indent-mode -1)
+#+end_src
+
+*** キーバインド
+
+バックスペースを C-h に変更する。
+
+#+begin_src emacs-lisp
+  (keyboard-translate ?\C-h ?\C-?)
+#+end_src
+
+その他よく使うものを設定する。
+
+#+begin_src emacs-lisp
+  (define-key global-map (kbd "M-?") 'help-for-help)
+  (define-key global-map (kbd "C-z") 'undo)
+  (define-key global-map (kbd "C-c C-i") 'hippie-expand) ; 補完
+  (define-key global-map (kbd "C-c ;") 'comment-dwim) ; コメントアウト
+  (define-key global-map (kbd "C-c C-l") 'toggle-truncate-lines) ; 行の折り返しの切り替え
+  ;; ウィンドウ移動
+  ;; 次のウィンドウへ移動
+  (define-key global-map (kbd "C-M-n") 'next-multiframe-window)
+  ;; 前のウィンドウへ移動
+  (define-key global-map (kbd "C-M-p") 'previous-multiframe-window)
+#+end_src
+
+使わない割に誤爆する設定を無効化する。
+
+#+begin_src emacs-lisp
+  ;; suspend-frame だが使わない
+  (define-key global-map (kbd "C-x C-z") nil)
+#+end_src
+
+既存キーバインドの挙動を調整する。
+
+#+begin_src emacs-lisp
+  ;; 行の先頭で C-k を一回押すだけで行全体を消去する
+  (setq kill-whole-line t)
+  ;; 最終行に必ず一行挿入する
+  (setq require-final-newline t)
+  ;; バッファの最後でnewlineで新規行を追加するのを禁止する
+  (setq next-line-add-newlines nil)
+#+end_src
+
+関数定義への移動用キーバインドを設定する。
+
+- C-x F -> 関数定義へ移動
+- C-x K -> キーにバインドされている関数定義へ移動
+- C-x V -> 変数定義へ移動
+
+#+begin_src emacs-lisp
+  (find-function-setup-keys)
+#+end_src
+
+リージョン選択時の大文字小文字変換を有効にする。
+
+#+begin_src emacs-lisp
+  (put 'upcase-region 'disabled nil) ;; C-x C-u
+  (put 'downcase-region 'disabled nil) ;; C-x C-l
+#+end_src
+
+ターミナルで起動すると C-% が入力できないので、 C-M-% などが入力できない。
+そのため、C-x @ と入力することで C-M- が入力できるようにしておく。
+
+cf. https://superuser.com/questions/83166/using-c-m-to-do-a-query-replace-regexp-in-emacs-running-in-mac-terminal
+
+#+begin_src emacs-lisp
+  (defun my:event-apply-control-meta-modifiers (_)
+    (vector
+     (event-apply-modifier (event-apply-modifier (read-event)
+                                                 'control 26 "C-")
+                           'meta 27 "M-")))
+  (define-key function-key-map (kbd "C-x @") 'my:event-apply-control-meta-modifiers)
+#+end_src
+
+** ビルトインパッケージの拡張
+
+独自コマンドの実装にも影響がありうるため、独自コマンドの実装よりも先に定義しておく。
+
+*** delsel
+
+#+begin_src emacs-lisp
+  (leaf delsel
+    :doc "delete selection if you insert"
+    :tag "builtin"
+    :global-minor-mode delete-selection-mode)
+#+end_src
+
+*** diff
+
+#+begin_src emacs-lisp
+  (leaf diff
+    :tag "builtin"
+    :config
+    ;; diffを表示したらすぐに文字単位での強調表示も行う
+    (defun diff-mode-refine-automatically ()
+      (defvar diff-refine t))
+    (defun diff-mode-setup-faces ()
+      ;; 追加された行は緑で表示
+      (set-face-attribute 'diff-added nil
+                          :foreground "white" :background "dark green")
+      ;; 削除された行は赤で表示
+      (set-face-attribute 'diff-removed nil
+                          :foreground "white" :background "dark red")
+      ;; 文字単位での変更箇所は色を反転して強調
+      (set-face-attribute 'diff-refine-changed nil
+                          :foreground nil :background nil
+                          :weight 'bold :inverse-video t))
+    :hook
+    (diff-mode-hook . diff-mode-setup-faces)
+    (diff-mode-hook . diff-mode-refine-automatically)
+    :custom-face
+    (diff-added . '((nil :foreground "white" :background "dark green")))
+    (diff-removed . '((nil :foreground "white" :background "dark red")))
+    (diff-refine-change . '((nil :foreground nil :background nil :weight 'bold :inverse-video t)))
+    :custom
+    ((diff-switches . '("-u" "-p" "-N"))))
+#+end_src
+
+*** dired
+
+#+begin_src emacs-lisp
+  (leaf *dired
+    :config
+    (leaf dired-x
+      :doc "dired x"
+      :tag "builtin")
+
+    (leaf wdired
+      :doc "wdired"
+      :tag "builtin"
+      :bind
+      ((:dired-mode-map
+        ;; diredから"r"でファイル名をインライン編集する
+        :package dired
+        ("r" . wdired-change-to-wdired-mode)))))
+#+end_src
+
+*** grep
+
+#+begin_src emacs-lisp
+  (leaf grep
+    :doc "optimized configured grep"
+    :tag "builtin"
+    :bind
+    (("M-C-g" . grep))
+    :custom
+    ((grep-use-null-device . nil))
+    :preface
+    ;; git grep を emacs 上で実行できるようにする
+    (defun git-grep ()
+      "独自定義の git grep。今いるディレクトリで git grep を実行し通常の grep コマンドのインターフェースで表示する。"
+      (interactive)
+
+      (if (eq 0 (string-match "^true$" (shell-command-to-string "git rev-parse --is-inside-work-tree")))
+          (let ((grep-dir
+                 (concat (replace-regexp-in-string "[\n\r]+$" "" (shell-command-to-string "git rev-parse --show-toplevel")) "/"))
+                (command-args
+                 (read-shell-command "Run git-grep (like this): " "PAGER='' git --no-pager grep -I -n -i -e "
+                                     'git-grep-history)))
+            (grep (format "cd %s && %s" grep-dir command-args)))
+        (message "You are not at git repository.")))
+    :config
+    ;; コマンドを呼び出した時に、ディレクトリ指定の "." の前のスペースの前に
+    ;; カーソルを合わせておいて、すぐ検索したい単語を入力できるようにする
+    (defvar grep-command-before-query "grep -nH -r -e ")
+    (setq grep-command (cons (concat grep-command-before-query " .")
+                             (+ (length grep-command-before-query) 1))))
+#+end_src
+
+*** javascript-mode
+
+#+begin_src emacs-lisp
+  (leaf javascript-mode
+    :tag "builtin"
+    :custom
+    (js-indent-level . 2))
+#+end_src
+
+*** ruby-mode
+
+#+begin_src emacs-lisp
+  (leaf ruby-mode
+    :tag "builtin"
+    :preface
+    (eval-when-compile ; ruby-indent-line が "not known to be defined" で怒られるのを防ぐため
+      (defun ruby-insert-end ()
+        "Insert 'end'."
+        (interactive)
+        (insert "end")
+        (ruby-indent-line)))
+    :bind
+    (:ruby-mode-map
+     ;; previous/next-multiframe-window を ruby-beginning/end-of-block で上書きしてしまうのを戻している
+     ("C-M-p" . nil)
+     ("C-M-n" . nil)
+     ;; 別のキーバインドに割り当て
+     ("C-s-p" . ruby-beginning-of-block)
+     ("C-s-n" . ruby-end-of-block)
+
+     ;; end 自動挿入
+     ("C-c C-e" . ruby-insert-end))
+    :custom
+    ((ruby-insert-encoding-magic-comment . nil)))
+#+end_src
+*** whitespace-mode
+
+#+begin_src emacs-lisp
+  (leaf whitespace
+    :config
+    (global-whitespace-mode t)
+    :custom
+    (
+     (whitespace-style . '(face tabs tab-mark spaces lines-tail trailing space-before-tab space-after-tab::space))
+     (whitespace-space-regexp . "\\(\x3000+\\)")
+     (whitespace-display-mappings. '((space-mark ?\x3000 [?\　])
+                                     (tab-mark   ?\t   [?\xBB ?\t])))
+     (whitespace-line-column . 300))
+    :custom-face
+    (whitespace-trailing . '((nil (:foreground "DeepPink" :underline t))))
+    (whitespace-tab . '((nil (:foreground "LightSkyBlue" :underline nil))))
+    (whitespace-space . '((nil (:foreground "Yellow" :weight bold)))))
+#+end_src
+
+*** re-builder
+
+正規表現での置換に re-builder を使えるようにする。
+TODO: そのうち leaf で書き直す
+
+実行時の設定
+
+#+begin_src emacs-lisp
+  (require 're-builder)
+  ;; 文字列リテラルではなく正規表現そのもの
+  (setq reb-re-syntax 'string)
+  (defvar reb-target-point nil)
+  (defun re-builder-with-point ()
+    "C-M-%仕様。現在位置から置換を開始するre-builder"
+    (interactive)
+    (setq reb-target-point (point))
+    (re-builder))
+  (defun re-builder-without-point ()
+    "元のM-x re-builder"
+    (interactive)
+    (setq reb-target-point nil)
+    (re-builder))
+  (defadvice reb-update-overlays (after with-point activate)
+    (when reb-target-point
+      (with-selected-window reb-target-window
+        (goto-char reb-target-point))))
+  (global-set-key (kbd "C-M-%") 're-builder-with-point)
+#+end_src
+
+置換開始コマンド
+
+re-builder バッファ内で置換を開始する関数をキーに割り当て。
+
+#+begin_src emacs-lisp
+  (define-key reb-mode-map (kbd "<return>") 'reb-query-replace-this-regxp)
+#+end_src
+
+その関数の実装。
+
+#+begin_src emacs-lisp
+  (defun reb-query-replace-this-regxp (replace)
+    "re-builder バッファ内の正規表現で、ターゲットバッファ内の置き換えをする。
+  re-builder バッファ内で実行することを想定している。
+  この関数の引数を置換先の文字列として使う。 \1 や \2 といった文字列で正規表現ん内の文字列を参照できる。"
+    (interactive "sReplace with: ")
+    (if (eq major-mode 'reb-mode)
+        (let (o (reg (reb-read-regexp)))
+          (select-window reb-target-window)
+          (save-excursion
+            (setq o (cl-find-if (lambda (ov) (eq (point) (overlay-end ov))) reb-overlays))
+            (if o (goto-char (overlay-start o)))
+            (query-replace-regexp reg replace)
+            (reb-quit)))
+      (error "Not in a re-builder buffer!")))
+#+end_src
+
+正規表現での検索
+
+入力されている正規表現でターゲットバッファ内を検索する C-c C-s / C-c C-r を C-s / C-r に割り当て。
+
+#+begin_src emacs-lisp
+  (define-key reb-mode-map (kbd "C-s") 'reb-next-match)
+  (define-key reb-mode-map (kbd "C-r") 'reb-prev-match)
+#+end_src
+
+終了時の正規表現コピー
+
+終了する際に正規表現をコピーするように関数をキーに割り当て。
+また C-c C-q を C-g にしている。
+
+#+begin_src emacs-lisp
+  (define-key reb-mode-map (kbd "C-g") 'reb-copy-and-quit)
+  (define-key reb-mode-map (kbd "C-c C-q") 'reb-copy-and-quit)
+#+end_src
+
+その関数の実装。
+
+#+begin_src emacs-lisp
+  (defun reb-copy-and-quit ()
+    (interactive)
+    (reb-copy)
+    (reb-quit))
+#+end_src
+
+クリア時の正規表現コピー
+
+クリアするときは正規表現だけをクリアするように関数をキーに割り当て。
+また C-c C-w を C-k にしている。
+
+#+begin_src emacs-lisp
+  (define-key reb-mode-map (kbd "C-k") 'reb-copy-and-erase)
+  (define-key reb-mode-map (kbd "C-c C-k") 'reb-copy-and-erase)
+#+end_src
+
+その関数の実装。
+
+#+begin_src emacs-lisp
+  (defun reb-copy-and-erase ()
+    (interactive)
+    (reb-copy)
+    (with-current-buffer reb-target-buffer (setq reb-regexp nil))
+    (erase-buffer)
+    (reb-insert-regexp)
+    (forward-char -1))
+#+end_src
+** 外部パッケージ
+*** 補完関連
+
+補完UI として Vertico を使う。
+
+#+begin_src emacs-lisp
+  (leaf vertico
+    :ensure t
+    :preface
+    (setq-local completion-styles '(orderless)
+                completion-cycle-threshold nil)
+    ;; C-l で上のディレクトリに上がる（helm に揃える）
+    (defun my:filename-upto-parent ()
+      "Move to parent directory like \"cd ..\" in find-file."
+      (interactive)
+      (let ((sep (eval-when-compile (regexp-opt '("/" "\\")))))
+        (save-excursion
+          (left-char 1)
+          (when (looking-at-p sep)
+            (delete-char 1)))
+        (save-match-data
+          (when (search-backward-regexp sep nil t)
+            (right-char 1)
+            (filter-buffer-substring (point)
+                                     (save-excursion (end-of-line) (point))
+                                     #'delete)))))
+    :bind
+    (:vertico-map (("C-l" . my:filename-upto-parent)))
+    :custom
+    `((vertico-count . 20)
+      (vertico-cycle . t)
+      )
+    :init
+    (vertico-mode)
+     ;; vertico の順番を永続化するために savehist-mode を実行している
+    (savehist-mode))
+#+end_src
+
+補完候補のいろいろな情報を表示する。表示内容の切り替えのキーバインドも設定しておく。
+
+#+begin_src emacs-lisp
+  (leaf marginalia
+    :ensure t
+    :init
+    (marginalia-mode)
+    :bind ("M-A" . marginalia-cycle)
+           (:minibuffer-local-map
+           (("M-A" . marginalia-cycle))))
+
+#+end_src
+補完コマンドをいろいろ入れる。一部はデフォルトのものを置き換えておく。
+
+#+begin_src emacs-lisp
+  (leaf consult
+    :ensure t
+    :bind
+    ("C-s" . consult-line)
+    ("M-ESC C-g" . consult-goto-line)
+    ("M-y" . consult-yank-from-kill-ring))
+#+end_src
+
+補完スタイルを便利にする。
+
+orderless-literal は通常文字列として、 orderless-flex は検索文字列の1文字ごとに検索する。
+
+#+begin_src emacs-lisp
+  (leaf orderless
+    :ensure t
+    :custom
+    (completion-styles . '(orderless))
+    (orderless-matching-styles . '(orderless-literal orderless-flex)))
+#+end_src
+
+*** 各種 mode
+
+#+begin_src emacs-lisp
+  (leaf json-mode
+    :ensure t)
+#+end_src
+
+#+begin_src emacs-lisp
+  (leaf yaml-mode
+    :ensure t)
+#+end_src
+
+#+begin_src emacs-lisp
+  (leaf haml-mode
+    :ensure t)
+#+end_src
+
+#+begin_src emacs-lisp
+  (leaf markdown-mode
+    :ensure t
+    :custom (css-indent-offset . 2))
+#+end_src
+
+#+begin_src emacs-lisp
+  (leaf coffee-mode
+    :ensure t
+    :config
+    (custom-set-variables '(coffee-tab-width 2)))
+#+end_src
+
+#+begin_src emacs-lisp
+  (leaf web-mode
+    :ensure t
+    :mode
+    ("\\.html\\'" "\\.p?html?\\'" . web-mode)
+    :custom
+    ((web-mode-markup-indent-offset . 2)
+     (web-mode-css-indent-offset . 2)
+     (web-mode-code-indent-offset . 2)
+     (indent-tabs-mode . nil)
+     (web-mode-comment-style . 2))
+
+    :custom-face
+      (web-mode-doctype-face . '((t (:foreground "#82AE46"))))
+      (web-mode-html-tag-face . '((t (:foreground "#E6B422" :weight bold))))
+      (web-mode-html-attr-name-face . '((t (:foreground "#C97586"))))
+      (web-mode-html-attr-value-face . '((t (:foreground "#82AE46"))))
+      (web-mode-comment-face . '((t (:foreground "#D9333F"))))
+      (web-mode-server-comment-face . '((t (:foreground "#D9333F"))))
+      (web-mode-css-rule-face . '((t (:foreground "#A0D8EF"))))
+      (web-mode-css-pseudo-class-face . '((t (:foreground "#FF7F00"))))
+      (web-mode-css-at-rule-face . '((t (:foreground "#FF7F00")))))
+#+end_src
+
+*** その他
+
+#+begin_src emacs-lisp
+  (leaf magit
+    :ensure t
+    :custom
+    ((magit-diff-refine-hunk . 'all)))
+#+end_src
+
+#+begin_src emacs-lisp
+  (leaf anzu
+    :ensure t
+    :custom
+    ((anzu-minimum-input-length . 2)
+     (anzu-search-threshold . 1000))
+    :config
+    (global-anzu-mode t)
+    :bind
+    (("M-%" . anzu-query-replace)))
+#+end_src
+
+#+begin_src emacs-lisp
+  (leaf ddskk
+    :ensure t
+    :bind
+    (("C-x j" . skk-mode))
+    :custom
+    ((skk-egg-like-newline . t)
+     (skk-delete-implies-kakutei . nil)
+     (skk-use-look . t)
+     (skk-auto-insert-paren . t)
+     (skk-henkan-strict-okuri-precedence . t)
+     (skk-japanese-message-and-error . t)
+     (skk-isearch-start-mode . 'latin)
+     (skk-server-host . "localhost")
+     (skk-server-portnum . 1178)
+     (skk-show-candidates-always-pop-to-buffer . t)
+     (skk-henkan-number-to-display-candidates . 5)
+     (skk-show-candidates-nth-henkan-char . 5)))
+#+end_src
+
+#+begin_src emacs-lisp :comments no
+;;; init.el ends here
+#+end_src
