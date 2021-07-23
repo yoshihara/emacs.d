@@ -33,6 +33,7 @@
 - [ ] https://emacs-jp.github.io/tips/emacs-in-2020 を参考にして使いそうなのを入れる
 - [ ] skk の辞書
 - [ ] skk でENTERで変換確定するようにする
+- [ ] https://emacs-jp.github.io/tips/emacs-in-2020 でバイトコンパイル用の Makefile を作る
 - [ ] ↓セクションの整理（今は仮）
 
 * emacs の挙動設定
