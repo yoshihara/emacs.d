@@ -198,12 +198,14 @@
 
 ** キーバインド追加
 
+下記のうち、 grep は下の方で拡張しているので注意。
+
 #+begin_src emacs-lisp
   (define-key global-map (kbd "M-?") 'help-for-help)     ; ヘルプ
   (define-key global-map (kbd "C-z") 'undo)              ; undo
   (define-key global-map (kbd "C-c C-i") 'hippie-expand) ; 補完
   (define-key global-map (kbd "C-c ;") 'comment-dwim)    ; コメントアウト
-  (define-key global-map (kbd "M-C-g") 'grep-find)       ; grep
+  (define-key global-map (kbd "M-C-g") 'grep)            ; grep
   (define-key global-map (kbd "C-[ M-C-g") 'goto-line)   ; 指定行へ移動
   ;; ウィンドウ移動
   ;; 次のウィンドウへ移動
@@ -258,6 +260,29 @@ C-j でインデントつき改行し、RETは改行のみにする。
   (setq-default indent-tabs-mode nil)
 #+end_src
 
+* ビルトインパッケージの拡張
+
+** grep
+
+#+begin_src emacs-lisp
+  (require 'grep)
+  (setq grep-command-before-query "grep -nH -r -e ")
+  (defun grep-default-command ()
+    (if current-prefix-arg
+        (let ((grep-command-before-target
+               (concat grep-command-before-query
+                       (shell-quote-argument (grep-tag-default)))))
+          (cons (if buffer-file-name
+                    (concat grep-command-before-target
+                            " *."
+                            (file-name-extension buffer-file-name))
+                  (concat grep-command-before-target " ."))
+                (+ (length grep-command-before-target) 1)))
+      (car grep-command)))
+  (setq grep-command (cons (concat grep-command-before-query " .")
+                           (+ (length grep-command-before-query) 1)))
+#+end_src
+
 * 独自コマンド実装
 
 ** git grep
@@ -265,8 +290,6 @@ C-j でインデントつき改行し、RETは改行のみにする。
 #+begin_src emacs-lisp
   (defun self-git-grep--chomp (str)
     (replace-regexp-in-string "[\n\r]+$" "" str))
-
-  ;;; git
   (defun self-git-grep--git-project-p ()
     (string=
      (self-git-grep--chomp
