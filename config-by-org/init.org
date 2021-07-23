@@ -44,6 +44,15 @@
   (setq debug-on-error t)
 #+end_src
 
+** custom-file
+
+custom-set-variables の設定を適当なファイルに書いて捨てる。
+cf. https://www.grugrut.net/posts/my-emacs-init-el/
+
+#+begin_src emacs-lisp
+  (custom-set-variables '(custom-file (expand-file-name "custom.el" user-emacs-directory)))
+#+end_src
+
 ** 音
 
 エラー音を鳴らさないようにする。
