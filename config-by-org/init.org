@@ -262,6 +262,18 @@ C-j でインデントつき改行し、RETは改行のみにする。
 
 * ビルトインパッケージの拡張
 
+独自コマンドの実装にも影響がありうるため、独自コマンドの実装よりも先に定義しておく。
+
+** dired
+
+#+begin_src emacs-lisp
+    (require 'dired-x)
+    (require 'wdired)
+
+    ;; diredから"r"でファイル名をインライン編集する
+    (define-key dired-mode-map "r" 'wdired-change-to-wdired-mode)
+#+end_src
+
 ** grep
 
 #+begin_src emacs-lisp
