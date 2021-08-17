@@ -444,12 +444,11 @@ cf. https://superuser.com/questions/83166/using-c-m-to-do-a-query-replace-regexp
   (leaf ruby-mode
     :tag "builtin"
     :preface
-    (eval-when-compile ; ruby-indent-line が "not known to be defined" で怒られるのを防ぐため
-      (defun ruby-insert-end ()
-        "Insert 'end'."
-        (interactive)
-        (insert "end")
-        (ruby-indent-line)))
+    (defun ruby-insert-end ()
+      "Insert 'end'."
+      (interactive)
+      (insert "end")
+      (ruby-indent-line))
     :bind
     (:ruby-mode-map
      ;; previous/next-multiframe-window を ruby-beginning/end-of-block で上書きしてしまうのを戻している
