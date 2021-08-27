@@ -516,6 +516,7 @@ TODO: そのうち leaf で書き直す
 re-builder バッファ内で置換を開始する関数をキーに割り当て。
 
 #+begin_src emacs-lisp
+  (define-key reb-mode-map (kbd "C-j") 'reb-query-replace-this-regxp) ;; CUI だと return が何故か効かないため
   (define-key reb-mode-map (kbd "<return>") 'reb-query-replace-this-regxp)
 #+end_src
 
