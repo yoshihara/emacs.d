@@ -658,7 +658,7 @@ orderless-literal は通常文字列として、 orderless-flex は検索文字�
     :ensure t
     :custom
     (completion-styles . '(orderless))
-    (orderless-matching-styles . '(orderless-literal orderless-flex)))
+    (orderless-matching-styles . '(orderless-literal orderless-prefixes)))
 #+end_src
 
 *** 各種 mode
