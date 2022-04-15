@@ -646,7 +646,9 @@ re-builder バッファ内で置換を開始する関数をキーに割り当て
     :bind
     ("C-s" . consult-line)
     ("M-ESC C-g" . consult-goto-line)
-    ("M-y" . consult-yank-from-kill-ring))
+    ("M-y" . consult-yank-from-kill-ring)
+    :init
+    (recentf-mode))
 #+end_src
 
 補完スタイルを便利にする。
