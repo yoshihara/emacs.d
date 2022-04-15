@@ -610,8 +610,7 @@ re-builder バッファ内で置換を開始する関数をキーに割り当て
             (delete-char 1)))
         (save-match-data
           (when (search-backward-regexp sep nil t)
-            (right-char 1)
-            (filter-buffer-substring (point)
+            (right-char 1)            (filter-buffer-substring (point)
                                      (save-excursion (end-of-line) (point))
                                      #'delete)))))
     :bind
@@ -647,6 +646,7 @@ re-builder バッファ内で置換を開始する関数をキーに割り当て
     ("C-s" . consult-line)
     ("M-ESC C-g" . consult-goto-line)
     ("M-y" . consult-yank-from-kill-ring)
+    ("C-x b" . consult-buffer)
     :init
     (recentf-mode))
 #+end_src
