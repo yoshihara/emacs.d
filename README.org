@@ -427,6 +427,12 @@ cf. https://superuser.com/questions/83166/using-c-m-to-do-a-query-replace-regexp
     (defvar grep-command-before-query "grep -nH -r -e ")
     (setq grep-command (cons (concat grep-command-before-query " .")
                              (+ (length grep-command-before-query) 1))))
+
+  (leaf wgrep
+    :require t
+    :custom ((wgrep-enable-key . "e")
+             (wgrep-auto-save-buffer . t)
+             (wgrep-change-readonly-file . t)))
 #+end_src
 
 *** javascript-mode
