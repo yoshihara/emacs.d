@@ -643,7 +643,6 @@ re-builder バッファ内で置換を開始する関数をキーに割り当て
   (leaf consult
     :ensure t
     :bind
-    ("C-s" . consult-line)
     ("M-ESC C-g" . consult-goto-line)
     ("M-y" . consult-yank-from-kill-ring)
     ("C-x b" . consult-buffer)
