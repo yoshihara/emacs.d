@@ -421,12 +421,6 @@ cf. https://superuser.com/questions/83166/using-c-m-to-do-a-query-replace-regexp
                                      'git-grep-history)))
             (grep (format "cd %s && %s" grep-dir command-args)))
         (message "You are not at git repository.")))
-    :config
-    ;; コマンドを呼び出した時に、ディレクトリ指定の "." の前のスペースの前に
-    ;; カーソルを合わせておいて、すぐ検索したい単語を入力できるようにする
-    (defvar grep-command-before-query "grep -nH -r -e ")
-    (setq grep-command (cons (concat grep-command-before-query " .")
-                             (+ (length grep-command-before-query) 1))))
 
   (leaf wgrep
     :require t
