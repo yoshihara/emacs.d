@@ -420,7 +420,7 @@ cf. https://superuser.com/questions/83166/using-c-m-to-do-a-query-replace-regexp
                  (read-shell-command "Run git-grep (like this): " "PAGER='' git --no-pager grep -I -n -i -e "
                                      'git-grep-history)))
             (grep (format "cd %s && %s" grep-dir command-args)))
-        (message "You are not at git repository.")))
+        (message "You are not at git repository."))))
 
   (leaf wgrep
     :require t
