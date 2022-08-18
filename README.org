@@ -406,7 +406,10 @@ cf. https://superuser.com/questions/83166/using-c-m-to-do-a-query-replace-regexp
     :bind
     (("M-C-g" . grep))
     :custom
-    ((grep-use-null-device . nil))
+    (
+      (grep-use-null-device . nil)
+      (grep-command . '("grep -nH --color -r -e  ." . 24))
+      )
     :preface
     ;; git grep を emacs 上で実行できるようにする
     (defun git-grep ()
