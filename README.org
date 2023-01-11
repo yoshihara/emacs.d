@@ -408,7 +408,7 @@ cf. https://superuser.com/questions/83166/using-c-m-to-do-a-query-replace-regexp
     :custom
     (
       (grep-use-null-device . nil)
-      (grep-command . '("grep -nH --color -r -e  ." . 24))
+      (grep-command . "grep -nH --color -r -e ")
       )
     :preface
     ;; git grep を emacs 上で実行できるようにする
