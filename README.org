@@ -464,7 +464,7 @@ cf. https://superuser.com/questions/83166/using-c-m-to-do-a-query-replace-regexp
      ;; end 自動挿入
      ("C-c C-e" . ruby-insert-end))
     :custom
-    ((ruby-insert-encoding-magic-comment . nil)))
+    (ruby-insert-encoding-magic-comment . nil))
 #+end_src
 *** whitespace-mode
 
