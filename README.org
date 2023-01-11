@@ -760,6 +760,32 @@ orderless-literal は通常文字列として、 orderless-flex は検索文字�
      (skk-show-candidates-nth-henkan-char . 5)))
 #+end_src
 
+#+begin_src emacs-lisp
+    (leaf dash
+      :ensure t
+      :init
+      (leaf s :ensure t)
+        :config
+        (defun my/file-jump-with-lineno ()
+          "カーソル下のファイルに飛ぶ。行番号があればその行に飛ぶ。"
+          (interactive)
+          (let ((original-path (thing-at-point 'filename)) path target-path lineno)
+            (string-match ":\\([0-9]+\\):" original-path)
+            (setq lineno (match-string 1 original-path))
+            (setq path (replace-regexp-in-string ":.+" "" original-path))
+            (setq target-path (concat (file-name-directory (buffer-file-name)) path))
+            (if (file-exists-p target-path)
+                (find-file target-path))
+            (if lineno
+                (progn
+                  (goto-char (point-min))
+                  (forward-line (1- (string-to-number lineno)))
+                  ))))
+        :bind
+        (("C-x f" . my/file-jump-with-lineno))
+        )
+#+end_src
+
 #+begin_src emacs-lisp :comments no
 ;;; init.el ends here
 #+end_src
